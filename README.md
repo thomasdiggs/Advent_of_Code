@@ -1,2 +1,3 @@
-# Advent_of_Code
+# Advent of Code
+
 Collection of coding problems from adventofcode.com.
