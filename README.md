@@ -1,3 +1,3 @@
 # Advent of Code
 
- Collection of solutions for problem at AdventofCode.com
+A Collection of my solutions written in C and C# to problems from AdventofCode.com.
