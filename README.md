@@ -1,3 +1,3 @@
 # Advent of Code
 
-Collection of coding problems from adventofcode.com.
+ Collection of solutions for problem at AdventofCode.com
