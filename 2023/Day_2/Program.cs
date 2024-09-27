@@ -6,7 +6,6 @@ namespace Day_2
     {
         static void Main(string[] args)
         {
-            /**** Part One ****/
             string[] input = File.ReadAllLines(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "input.txt"));
 
             int sumPossibles = 0;

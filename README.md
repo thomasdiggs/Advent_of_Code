@@ -1,3 +1,3 @@
 # Advent of Code
 
-A Collection of my solutions written in C and C# to problems from AdventofCode.com.
+A Collection of my solutions written in C# to problems from AdventofCode.com.
