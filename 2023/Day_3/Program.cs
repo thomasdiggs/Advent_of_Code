@@ -45,6 +45,7 @@ namespace Day_3
 
             string patternPartNumber = @"[0-9]+";
             string patternSymbol = @"[^0-9.]";
+            string patternGear = @"[*]";
 
             for (int i = 0; i < input.Length; i++)
             {
@@ -88,7 +89,7 @@ namespace Day_3
                     if (partNumber.Row > 0)
                     {
                         int startingPosition = partNumber.Index > 0 ? (partNumber.Index - 1) : (partNumber.Index);
-                        int endingPosition = partNumber.Index + partNumber.Length < input[partNumber.Row].Length ? (partNumber.Index + partNumber.Length) : (partNumber.Index + partNumber.Length - 1);
+                        int endingPosition = partNumber.Index + partNumber.Length < input[partNumber.Row - 1].Length ? (partNumber.Index + partNumber.Length) : (partNumber.Index + partNumber.Length - 1);
                         if (symbol.Index >= startingPosition && symbol.Index <= endingPosition && symbol.Row == partNumber.Row - 1)
                         {
                             partNumber.HasSymbol = true;
@@ -98,7 +99,7 @@ namespace Day_3
                     if (partNumber.Row < input.Length - 1)
                     {
                         int startingPosition = partNumber.Index > 0 ? (partNumber.Index - 1) : (partNumber.Index);
-                        int endingPosition = partNumber.Index + partNumber.Length < input[partNumber.Row].Length ? (partNumber.Index + partNumber.Length) : (partNumber.Index + partNumber.Length - 1);
+                        int endingPosition = partNumber.Index + partNumber.Length < input[partNumber.Row + 1].Length ? (partNumber.Index + partNumber.Length) : (partNumber.Index + partNumber.Length - 1);
                         if (symbol.Index >= startingPosition && symbol.Index <= endingPosition && symbol.Row == partNumber.Row + 1)
                         {
                             partNumber.HasSymbol = true;
@@ -108,20 +109,89 @@ namespace Day_3
                 sum += partNumber.HasSymbol ? int.Parse(partNumber.Value) : 0;
             }
 
-            Console.WriteLine("Part Numbers:");
-            foreach (PartNumber partNumber in partNumbers)
+            Console.WriteLine($"Part One: {sum}");
+
+            /**** Part Two ****/
+            sum = 0;
+            List<PartNumber> partNumbers2 = [];
+            List<Symbol> symbols2 = [];
+
+            for (int i = 0; i < input.Length; i++)
             {
-                Console.WriteLine($"Value: {partNumber.Value}, Row: {partNumber.Row}, Index: {partNumber.Index}, Length: {partNumber.Length}, Has Symbol: {partNumber.HasSymbol}");
-            }
-            Console.WriteLine();
-            Console.WriteLine($"Symbols:");
-            foreach (Symbol symbol in symbols)
-            {
-                Console.WriteLine($"Value: {symbol.Value}, Row: {symbol.Row}, Index: {symbol.Index}");
+                MatchCollection matchesPartNumbers = Regex.Matches(input[i], patternPartNumber);
+                foreach (Match match in matchesPartNumbers)
+                {
+                    partNumbers2.Add(new PartNumber(match.Value, i, match.Index, match.Length));
+                }
+                MatchCollection matchesGears = Regex.Matches(input[i], patternGear);
+                foreach (Match match in matchesGears)
+                {
+                    symbols2.Add(new Symbol(match.Value, i, match.Index));
+                }
             }
 
-            Console.WriteLine();
-            Console.WriteLine($"Part One: {sum}");
+            foreach (Symbol symbol in symbols2)
+            {
+                List<PartNumber> adjacentPartNumbers = [];
+                // Check left
+                if (symbol.Index > 0)
+                {
+                    foreach (PartNumber partNumber in partNumbers2)
+                    {
+                        if (partNumber.Index + partNumber.Length == symbol.Index && partNumber.Row == symbol.Row)
+                        {
+                            adjacentPartNumbers.Add(partNumber);
+                        }
+                    }
+                }
+                // Check right
+                if (symbol.Index < input[symbol.Row].Length - 1)
+                {
+                    foreach (PartNumber partNumber in partNumbers2)
+                    {
+                        if (partNumber.Index == symbol.Index + 1 && partNumber.Row == symbol.Row)
+                        {
+                            adjacentPartNumbers.Add(partNumber);
+                        }
+                    }
+                }
+                // Check above
+                if (symbol.Row > 0)
+                {
+                    int startingPosition = symbol.Index > 0 ? (symbol.Index - 1) : (symbol.Index);
+                    int endingPosition = symbol.Index < input[symbol.Row - 1].Length - 1 ? (symbol.Index + 1) : (symbol.Index);
+                    foreach (PartNumber partNumber in partNumbers2)
+                    {
+                        int partNumberRangeStart = partNumber.Index;
+                        int partNumberRangeEnd = partNumber.Index + partNumber.Length - 1;
+                        if (partNumberRangeStart <= endingPosition && partNumberRangeEnd >= startingPosition && partNumber.Row == symbol.Row - 1)
+                        {
+                            adjacentPartNumbers.Add(partNumber);
+                        }
+                    }
+                }
+                // Check below
+                if (symbol.Row < input.Length - 1)
+                {
+                    int startingPosition = symbol.Index > 0 ? (symbol.Index - 1) : (symbol.Index);
+                    int endingPosition = symbol.Index < input[symbol.Row + 1].Length - 1 ? (symbol.Index + 1) : (symbol.Index);
+                    foreach (PartNumber partNumber in partNumbers2)
+                    {
+                        int partNumberRangeStart = partNumber.Index;
+                        int partNumberRangeEnd = partNumber.Index + partNumber.Length - 1;
+                        if (partNumberRangeStart <= endingPosition && partNumberRangeEnd >= startingPosition && partNumber.Row == symbol.Row + 1)
+                        {
+                            adjacentPartNumbers.Add(partNumber);
+                        }
+                    }
+                }
+                if (adjacentPartNumbers.Count == 2)
+                {
+                    sum+= int.Parse(adjacentPartNumbers.First().Value) * int.Parse(adjacentPartNumbers.Last().Value);
+                }
+            }
+
+            Console.WriteLine($"Part Two: {sum}");
         }
     }
 }

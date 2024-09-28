@@ -1,4 +1,6 @@
-﻿## --- Day 3: Gear Ratios ---
+﻿# THIS COULD USE A REFACTOR
+
+## --- Day 3: Gear Ratios ---
 
 You and the Elf eventually reach a gondola lift station; he says the gondola lift will take you up to the water source, but this is as far as he can bring you. You go inside.
 
@@ -65,4 +67,4 @@ In this schematic, there are two gears. The first is in the top left; it has par
 
 What is the sum of all of the gear ratios in your engine schematic?
 
-Your puzzle answer was #####.
+Your puzzle answer was 72553319.
