@@ -56,42 +56,42 @@ namespace Day_5
     {
         static void Main(string[] args)
         {
-            //string[] input = File.ReadAllLines(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "input.txt"));
+            string[] input = File.ReadAllLines(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "input.txt"));
 
-            string[] input = [
-                "seeds: 79 14 55 13",
-                "",
-                "seed-to-soil map:",
-                "50 98 2",
-                "52 50 48",
-                "",
-                "soil-to-fertilizer map:",
-                "0 15 37",
-                "37 52 2",
-                "39 0 15",
-                "",
-                "fertilizer-to-water map:",
-                "49 53 8",
-                "0 11 42",
-                "42 0 7",
-                "57 7 4",
-                "",
-                "water-to-light map:",
-                "88 18 7",
-                "18 25 70",
-                "",
-                "light-to-temperature map:",
-                "45 77 23",
-                "81 45 19",
-                "68 64 13",
-                "",
-                "temperature-to-humidity map:",
-                "0 69 1",
-                "1 0 69",
-                "",
-                "humidity-to-location map:",
-                "60 56 37",
-                "56 93 4"];
+            //string[] input = [
+            //    "seeds: 79 14 55 13",
+            //    "",
+            //    "seed-to-soil map:",
+            //    "50 98 2",
+            //    "52 50 48",
+            //    "",
+            //    "soil-to-fertilizer map:",
+            //    "0 15 37",
+            //    "37 52 2",
+            //    "39 0 15",
+            //    "",
+            //    "fertilizer-to-water map:",
+            //    "49 53 8",
+            //    "0 11 42",
+            //    "42 0 7",
+            //    "57 7 4",
+            //    "",
+            //    "water-to-light map:",
+            //    "88 18 7",
+            //    "18 25 70",
+            //    "",
+            //    "light-to-temperature map:",
+            //    "45 77 23",
+            //    "81 45 19",
+            //    "68 64 13",
+            //    "",
+            //    "temperature-to-humidity map:",
+            //    "0 69 1",
+            //    "1 0 69",
+            //    "",
+            //    "humidity-to-location map:",
+            //    "60 56 37",
+            //    "56 93 4"];
 
             MatchCollection matches = Regex.Matches(input[0], @"\d+");
             long[] seeds = new long[matches.Count];
@@ -179,57 +179,140 @@ namespace Day_5
             Console.WriteLine();
 
 
+            // Brute force, don't do this at home kids
             List<Interval> intervals = [];
             for (int i = 0; i < matches.Count; i += 2)
             {
                 intervals.Add(new Interval(seeds[i], seeds[i + 1]));
             }
 
-            Console.WriteLine($"Seed to Soil:");
-            intervals = UpdateIntervals(intervals, maps.SeedToSoil);
-            PrintIntervals(intervals);
-            Console.WriteLine("\n");
+            lowestLocation = long.MaxValue;
 
-            Console.WriteLine($"Soil to Fertilizer:");
-            intervals = UpdateIntervals(intervals, maps.SoilToFertilizer);
-            PrintIntervals(intervals);
-            Console.WriteLine("\n");
-
-            Console.WriteLine($"Fertilizer to Water:");
-            intervals = UpdateIntervals(intervals, maps.FertilizerToWater);
-            PrintIntervals(intervals);
-            Console.WriteLine("\n");
-
-            Console.WriteLine($"Water to Light:");
-            intervals = UpdateIntervals(intervals, maps.WaterToLight);
-            PrintIntervals(intervals);
-            Console.WriteLine("\n");
-
-            Console.WriteLine($"Light to Temperature:");
-            intervals = UpdateIntervals(intervals, maps.LightToTemperature);
-            PrintIntervals(intervals);
-            Console.WriteLine("\n");
-
-            Console.WriteLine($"Temperature to Humidity:");
-            intervals = UpdateIntervals(intervals, maps.TemperatureToHumidity);
-            PrintIntervals(intervals);
-            Console.WriteLine("\n");
-
-            Console.WriteLine($"Humidity to Location:");
-            intervals = UpdateIntervals(intervals, maps.HumidityToLocation);
-            PrintIntervals(intervals);
-            Console.WriteLine("\n");
-
-            long lowestLocationStart = long.MaxValue;
-            foreach (Interval interval in intervals)
+            for (int i = 0; i < intervals.Count; i++)
             {
-                if (interval.Start < lowestLocationStart)
+                Console.WriteLine($"Interval {intervals[i].Start} - Length {intervals[i].Length}");
+                for (long j = intervals[i].Start; j < intervals[i].Start + intervals[i].Length; j++)
                 {
-                    lowestLocationStart = interval.Start;
+                    Console.WriteLine($"Seed: {j}");
+                    long soil = j;
+                    foreach (Map map in maps.SeedToSoil)
+                    {
+                        if (j >= map.SourceRangeStart && j < map.SourceRangeStart + map.RangeLength)
+                        {
+                            soil = map.DestinationRangeStart + j - map.SourceRangeStart;
+                            break;
+                        }
+                    }
+                    long fertilizer = soil;
+                    foreach (Map map in maps.SoilToFertilizer)
+                    {
+                        if (soil >= map.SourceRangeStart && soil < map.SourceRangeStart + map.RangeLength)
+                        {
+                            fertilizer = map.DestinationRangeStart + soil - map.SourceRangeStart;
+                            break;
+                        }
+                    }
+                    long water = fertilizer;
+                    foreach (Map map in maps.FertilizerToWater)
+                    {
+                        if (fertilizer >= map.SourceRangeStart && fertilizer < map.SourceRangeStart + map.RangeLength)
+                        {
+                            water = map.DestinationRangeStart + fertilizer - map.SourceRangeStart;
+                            break;
+                        }
+                    }
+                    long light = water;
+                    foreach (Map map in maps.WaterToLight)
+                    {
+                        if (water >= map.SourceRangeStart && water < map.SourceRangeStart + map.RangeLength)
+                        {
+                            light = map.DestinationRangeStart + water - map.SourceRangeStart;
+                            break;
+                        }
+                    }
+                    long temperature = light;
+                    foreach (Map map in maps.LightToTemperature)
+                    {
+                        if (light >= map.SourceRangeStart && light < map.SourceRangeStart + map.RangeLength)
+                        {
+                            temperature = map.DestinationRangeStart + light - map.SourceRangeStart;
+                            break;
+                        }
+                    }
+                    long humidity = temperature;
+                    foreach (Map map in maps.TemperatureToHumidity)
+                    {
+                        if (temperature >= map.SourceRangeStart && temperature < map.SourceRangeStart + map.RangeLength)
+                        {
+                            humidity = map.DestinationRangeStart + temperature - map.SourceRangeStart;
+                            break;
+                        }
+                    }
+                    long location = humidity;
+                    foreach (Map map in maps.HumidityToLocation)
+                    {
+                        if (humidity >= map.SourceRangeStart && humidity < map.SourceRangeStart + map.RangeLength)
+                        {
+                            location = map.DestinationRangeStart + humidity - map.SourceRangeStart;
+                            break;
+                        }
+                    }
+                    if (location < lowestLocation)
+                    {
+                        lowestLocation = location;
+                    }
                 }
+                Console.WriteLine($"Lowest Location: {lowestLocation}");
             }
 
-            Console.WriteLine($"Part Two: {lowestLocationStart}");
+            Console.WriteLine($"Part Two: {lowestLocation}");
+
+
+            //    Console.WriteLine($"Seed to Soil:");
+            //    intervals = UpdateIntervals(intervals, maps.SeedToSoil);
+            //    PrintIntervals(intervals);
+            //    Console.WriteLine("\n");
+
+            //    Console.WriteLine($"Soil to Fertilizer:");
+            //    intervals = UpdateIntervals(intervals, maps.SoilToFertilizer);
+            //    PrintIntervals(intervals);
+            //    Console.WriteLine("\n");
+
+            //    Console.WriteLine($"Fertilizer to Water:");
+            //    intervals = UpdateIntervals(intervals, maps.FertilizerToWater);
+            //    PrintIntervals(intervals);
+            //    Console.WriteLine("\n");
+
+            //    Console.WriteLine($"Water to Light:");
+            //    intervals = UpdateIntervals(intervals, maps.WaterToLight);
+            //    PrintIntervals(intervals);
+            //    Console.WriteLine("\n");
+
+            //    Console.WriteLine($"Light to Temperature:");
+            //    intervals = UpdateIntervals(intervals, maps.LightToTemperature);
+            //    PrintIntervals(intervals);
+            //    Console.WriteLine("\n");
+
+            //    Console.WriteLine($"Temperature to Humidity:");
+            //    intervals = UpdateIntervals(intervals, maps.TemperatureToHumidity);
+            //    PrintIntervals(intervals);
+            //    Console.WriteLine("\n");
+
+            //    Console.WriteLine($"Humidity to Location:");
+            //    intervals = UpdateIntervals(intervals, maps.HumidityToLocation);
+            //    PrintIntervals(intervals);
+            //    Console.WriteLine("\n");
+
+            //    long lowestLocationStart = long.MaxValue;
+            //    foreach (Interval interval in intervals)
+            //    {
+            //        if (interval.Start < lowestLocationStart)
+            //        {
+            //            lowestLocationStart = interval.Start;
+            //        }
+            //    }
+
+            //    Console.WriteLine($"Part Two: {lowestLocationStart}");
         }
 
         static List<Interval> UpdateIntervals(List<Interval> intervals, List<Map> maps)
